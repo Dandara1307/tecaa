@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TECA MATRIZ - Cadastro e Login</title>
+    <link rel="icon" type="image/x-icon" href="/icon.svg" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            color: #fff;
+        }
+        header {
+            background-color: #e60000;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid #fff;
+        }
+        .container {
+            width: 100%;
+            max-width: 480px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            border: 2px solid #e60000;
+            color: #333;
+        }
+        .container input, .container select, .container textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .container button {
+            background-color: #e60000;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            width: 100%;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .container button:hover {
+            background-color: #b50000;
+        }
+        h2 {
+            color: #e60000;
+            text-align: center;
+        }
+        .btn-link {
+            text-decoration: none;
+            color: #e60000;
+            font-size: 14px;
+            text-align: center;
+        }
+        .hidden {
+            display: none;
+        }
+        .btn-back {
+            background-color: #333;
+            color: white;
+            width: 100%;
+        }
+        .btn-back:hover {
+            background-color: #555;
+        }
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #e60000;
+            color: #fff;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+            border-top: 2px solid #fff;
+        }
+        /* Responsividade */
+        @media (max-width: 600px) {
+            header {
+                font-size: 16px;
+            }
+            .container {
+                margin: 10px;
+                padding: 15px;
+            }
+        }
+        #signatureCanvas {
+            border: 1px solid #ddd;
+            width: 100%;
+            height: 150px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>TECA MATRIZ</h1>
+    <h3>Segurança e Saúde em Primeiro Lugar</h3>
+</header>
+
+<!-- Tela de Login -->
+<div id="login" class="container">
+    <h2>Login</h2>
+    <input type="text" id="loginUsername" placeholder="Digite seu e-mail" required />
+    <input type="password" id="loginPassword" placeholder="Digite sua senha" required />
+    <button onclick="login()">Entrar</button>
+    <p>Não tem conta? <a href="javascript:void(0);" class="btn-link" onclick="showRegister()">Cadastre-se</a></p>
+    <p>Gestor? <a href="javascript:void(0);" class="btn-link" onclick="showManagerLogin()">Login Gestor</a></p>
+</div>
+
+<!-- Tela de Cadastro -->
+<div id="register" class="container hidden">
+    <h2>Cadastro</h2>
+    <input type="text" id="registerName" placeholder="Nome Completo" required />
+    <input type="email" id="registerEmail" placeholder="E-mail" required />
+    <input type="password" id="registerPassword" placeholder="Senha" required />
+    <input type="password" id="registerConfirmPassword" placeholder="Confirmar Senha" required />
+    <button onclick="register()">Cadastrar</button>
+    <button class="btn-back" onclick="showLogin()">Voltar ao Login</button>
+</div>
+
+<!-- Tela Principal do App -->
+<div id="app" class="container hidden">
+    <h2>Bem-vindo ao TECA MATRIZ</h2>
+    
+    <!-- Controle de Turno -->
+    <h3>Controle de Turno</h3>
+    <label for="turn">Escolha o Turno:</label>
+    <select id="turn">
+        <option value="T1">T1</option>
+        <option value="T2">T2</option>
+        <option value="T3">T3</option>
+    </select>
+
+    <!-- Controle de Produção -->
+    <h3>Controle de Produção</h3>
+    <label for="productionStatus">Status de Produção:</label>
+    <select id="productionStatus">
+        <option value="Dentro da Meta">Dentro da Meta</option>
+        <option value="Fora da Meta">Fora da Meta</option>
+    </select>
+
+    <label for="loadedCars">Carros Carregados:</label>
+    <input type="number" id="loadedCars" placeholder="Número de Carros Carregados" />
+
+    <label for="unloadedCars">Carros Não Carregados:</label>
+    <input type="number" id="unloadedCars" placeholder="Número de Carros Não Carregados" />
+
+    <label for="volumeIn">Volume IN:</label>
+    <input type="number" id="volumeIn" placeholder="Volume IN" />
+
+    <label for="volumeOut">Volume OUT:</label>
+    <input type="number" id="volumeOut" placeholder="Volume OUT" />
+
+    <!-- Avaliação do 5S -->
+    <h3>Avaliação do 5S</h3>
+    <label for="fiveSStatus">Qual a situação do 5S deixado pelo turno anterior?</label>
+    <select id="fiveSStatus">
+        <option value="Bom">(01) Bom</option>
+        <option value="Razoável">(02) Razoável</option>
+        <option value="Ruim">(03) Ruim</option>
+    </select>
+
+    <label for="tasks">Observações e Tarefas:</label>
+    <textarea id="tasks" placeholder="Liste as tarefas do dia..."></textarea>
+
+    <label for="previousShiftMessage">Recado do Turno Anterior:</label>
+    <textarea id="previousShiftMessage" placeholder="Mensagens do turno anterior..."></textarea>
+
+    <label for="pendingUrgencies">Pendências e Urgências:</label>
+    <textarea id="pendingUrgencies" placeholder="Liste as pendências e urgências..."></textarea>
+
+    <label for="occurrences">Ocorrências Relevantes:</label>
+    <textarea id="occurrences" placeholder="Registre ocorrências importantes..."></textarea>
+
+    <!-- Campo de Assinatura -->
+    <h3>Assinatura do Responsável</h3>
+    <input type="text" id="signatureName" placeholder="Digite seu nome" required />
+    <canvas id="signatureCanvas"></canvas>
+    <button onclick="clearSignature()">Limpar Assinatura</button>
+
+    <button onclick="saveData()">Salvar Dados</button>
+    <p id="dataSavedMessage" class="hidden">Dados Registrados</p>
+    <button onclick="exportToExcel()">Exportar para Excel</button>
+    <button onclick="logout()">Sair</button>
+</div>
+
+<!-- Tela de Login do Gestor -->
+<div id="managerLogin" class="container hidden">
+    <h2>Login Gestor</h2>
+    <input type="text" id="managerUsername" placeholder="Digite seu e-mail" required />
+    <input type="password" id="managerPassword" placeholder="Digite sua senha" required />
+    <button onclick="managerLogin()">Entrar</button>
+    <button class="btn-back" onclick="showLogin()">Voltar ao Login</button>
+</div>
+
+<!-- Tela de Respostas do Gestor -->
+<div id="managerApp" class="container hidden">
+    <h2>Respostas dos Usuários</h2>
+    <div id="responses"></div>
+    <button class="btn-back" onclick="showManagerLogin()">Voltar ao Login Gestor</button>
+</div>
+
+<footer>
+    <p>&copy; 2025 Dandara Silva. Todos os direitos reservados.</p>
+</footer>
+
+<script>
+    // Variáveis para armazenar dados de login
+    let registeredUsers = [];
+    let responses = [];
+    const managerCredentials = { username: "gestor@tecamatriz.com", password: "senhaGestor" }; // Credenciais do gestor
+
+    // Configuração do Canvas para Assinatura
+    const canvas = document.getElementById('signatureCanvas');
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
+
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('mousemove', draw);
+
+    function startDrawing(event) {
+        drawing = true;
+        draw(event);
+    }
+
+    function stopDrawing() {
+        drawing = false;
+        ctx.beginPath();
+    }
+
+    function draw(event) {
+        if (!drawing) return;
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = '#000';
+
+        ctx.lineTo(event.clientX - canvas.offsetLeft, event.clientY - canvas.offsetTop);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(event.clientX - canvas.offsetLeft, event.clientY - canvas.offsetTop);
+    }
+
+    function clearSignature() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    // Exibe a tela de Login
+    function showLogin() {
+        document.getElementById('login').classList.remove('hidden');
+        document.getElementById('register').classList.add('hidden');
+        document.getElementById('app').classList.add('hidden');
+        document.getElementById('managerLogin').classList.add('hidden');
+        document.getElementById('managerApp').classList.add('hidden');
+    }
+
+    // Exibe a tela de Cadastro
+    function showRegister() {
+        document.getElementById('login').classList.add('hidden');
+        document.getElementById('register').classList.remove('hidden');
+    }
+
+    // Exibe a tela de Login do Gestor
+    function showManagerLogin() {
+        document.getElementById('managerLogin').classList.remove('hidden');
+        document.getElementById('login').classList.add('hidden');
+    }
+
+    // Exibe a tela de Respostas do Gestor
+    function showManagerApp() {
+        document.getElementById('managerApp').classList.remove('hidden');
+        document.getElementById('managerLogin').classList.add('hidden');
+        displayResponses();
+    }
+
+    // Função de Login
+    function login() {
+        const emailInput = document.getElementById('loginUsername');
+        const passwordInput = document.getElementById('loginPassword');
+        const email = emailInput.value.trim().toLowerCase();
+        const password = passwordInput.value;
+
+        // Verifica se o usuário está cadastrado
+        const user = registeredUsers.find(user => user.email.toLowerCase() === email && user.password === password);
+
+        if (user) {
+            alert('Login bem-sucedido!');
+            emailInput.value = '';
+            passwordInput.value = '';
+            document.getElementById('login').classList.add('hidden');
+            document.getElementById('app').classList.remove('hidden');
+        } else {
+            alert('E-mail ou senha incorretos. Tente novamente.');
+        }
+    }
+
+    // Função de Cadastro
+    function register() {
+        const nameInput = document.getElementById('registerName');
+        const emailInput = document.getElementById('registerEmail');
+        const passwordInput = document.getElementById('registerPassword');
+        const confirmPasswordInput = document.getElementById('registerConfirmPassword');
+
+        const name = nameInput.value.trim();
+        const email = emailInput.value.trim().toLowerCase();
+        const password = passwordInput.value;
+        const confirmPassword = confirmPasswordInput.value;
+
+        // Verifica se as senhas coincidem e se os campos estão preenchidos
+        if (name && email && password && confirmPassword) {
+            if (password === confirmPassword) {
+                // Verifica se email já está cadastrado
+                const exists = registeredUsers.some(user => user.email === email);
+                if (exists) {
+                    alert('E-mail já cadastrado. Por favor, faça login.');
+                    showLogin();
+                    return;
+                }
+                // Adiciona o usuário ao array de usuários registrados
+                registeredUsers.push({ name, email, password });
+                alert('Cadastro bem-sucedido! Faça login para continuar.');
+                nameInput.value = '';
+                emailInput.value = '';
+                passwordInput.value = '';
+                confirmPasswordInput.value = '';
+                showLogin();
+            } else {
+                alert('As senhas não coincidem!');
+            }
+        } else {
+            alert('Por favor, preencha todos os campos corretamente!');
+        }
+    }
+
+    // Função para salvar os dados
+    function saveData() {
+        const tasks = document.getElementById('tasks').value;
+        const previousShiftMessage = document.getElementById('previousShiftMessage').value;
+        const pendingUrgencies = document.getElementById('pendingUrgencies').value;
+        const occurrences = document.getElementById('occurrences').value;
+        const turn = document.getElementById('turn').value;
+        const productionStatus = document.getElementById('productionStatus').value;
+        const loadedCars = document.getElementById('loadedCars').value;
+        const unloadedCars = document.getElementById('unloadedCars').value;
+        const volumeIn = document.getElementById('volumeIn').value;
+        const volumeOut = document.getElementById('volumeOut').value;
+        const fiveSStatus = document.getElementById('fiveSStatus').value;
+        const signatureName = document.getElementById('signatureName').value.trim(); // Obtém o nome da assinatura
+
+        if (tasks && previousShiftMessage && pendingUrgencies && occurrences && signatureName) {
+            responses.push({
+                turn,
+                productionStatus,
+                loadedCars,
+                unloadedCars,
+                volumeIn,
+                volumeOut,
+                fiveSStatus,
+                tasks,
+                previousShiftMessage,
+                pendingUrgencies,
+                occurrences,
+                signature: canvas.toDataURL(), // Salva a assinatura como imagem
+                signatureName // Salva o nome do responsável
+            });
+            document.getElementById('dataSavedMessage').classList.remove('hidden');
+            alert('Dados salvos com sucesso!');
+        } else {
+            alert('Por favor, preencha todos os campos!');
+        }
+    }
+
+    // Função para exportar dados para Excel
+    function exportToExcel() {
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += "Turno,Status de Produção,Carros Carregados,Carros Não Carregados,Volume IN,Volume OUT,5S,Observações,Tarefas,Recado,Pendências,Ocorrências,Assinatura,Nome do Responsável\n";
+
+        responses.forEach(response => {
+            // Preparar valores escapando vírgulas e aspas para CSV
+            function escapeCSV(value) {
+                if (typeof value === 'string' && (value.includes(',') || value.includes('"') || value.includes('\n'))) {
+                    return '"' + value.replace(/"/g, '""') + '"';
+                }
+                return value;
+            }
+
+            const row = [
+                escapeCSV(response.turn),
+                escapeCSV(response.productionStatus),
+                escapeCSV(response.loadedCars),
+                escapeCSV(response.unloadedCars),
+                escapeCSV(response.volumeIn),
+                escapeCSV(response.volumeOut),
+                escapeCSV(response.fiveSStatus),
+                escapeCSV(response.tasks),
+                escapeCSV(response.previousShiftMessage),
+                escapeCSV(response.pendingUrgencies),
+                escapeCSV(response.occurrences),
+                escapeCSV(response.signature), // Adiciona a assinatura
+                escapeCSV(response.signatureName) // Adiciona o nome do responsável
+            ].join(",");
+            csvContent += row + "\n";
+        });
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "respostas.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    // Função de Login do Gestor
+    function managerLogin() {
+        const email = document.getElementById('managerUsername').value.trim().toLowerCase();
+        const password = document.getElementById('managerPassword').value;
+
+        if (email === managerCredentials.username && password === managerCredentials.password) {
+            alert('Login de Gestor bem-sucedido!');
+            showManagerApp();
+        } else {
+            alert('E-mail ou senha do gestor incorretos. Tente novamente.');
+        }
+    }
+
+    // Exibe as respostas dos usuários
+    function displayResponses() {
+        const responsesDiv = document.getElementById('responses');
+        responsesDiv.innerHTML = ''; // Limpa as respostas anteriores
+        responses.forEach((response, index) => {
+            responsesDiv.innerHTML += `<div>
+                <h4>Resposta ${index + 1}</h4>
+                <p><strong>Turno:</strong> ${response.turn}</p>
+                <p><strong>Status de Produção:</strong> ${response.productionStatus}</p>
+                <p><strong>Carros Carregados:</strong> ${response.loadedCars}</p>
+                <p><strong>Carros Não Carregados:</strong> ${response.unloadedCars}</p>
+                <p><strong>Volume IN:</strong> ${response.volumeIn}</p>
+                <p><strong>Volume OUT:</strong> ${response.volumeOut}</p>
+                <p><strong>5S:</strong> ${response.fiveSStatus}</p>
+                <p><strong>Tarefas:</strong> ${response.tasks}</p>
+                <p><strong>Recado do Turno Anterior:</strong> ${response.previousShiftMessage}</p>
+                <p><strong>Pendências:</strong> ${response.pendingUrgencies}</p>
+                <p><strong>Ocorrências:</strong> ${response.occurrences}</p>
+                <p><strong>Assinatura:</strong></p>
+                <img src="${response.signature}" alt="Assinatura" style="width: 200px; height: auto;">
+                <p><strong>Nome do Responsável:</strong> ${response.signatureName}</p>
+                <hr>
+            </div>`;
+        });
+    }
+
+    // Logout (volta para a tela de login)
+    function logout() {
+        showLogin();
+    }
+</script>
+
+</body>
+</html>
+
